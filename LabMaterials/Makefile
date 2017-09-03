@@ -1,4 +1,4 @@
-SRCS = $(wildcard *.c)
+SRCS = $(shell find . -name *.c)
 
 PROGS = $(patsubst %.c,%,$(SRCS))
 
