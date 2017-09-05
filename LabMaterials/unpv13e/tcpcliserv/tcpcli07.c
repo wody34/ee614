@@ -22,7 +22,7 @@ main(int argc, char **argv)
 	Signal(SIGALRM, sig_alrm);
 	val.it_interval.tv_sec  = 0;
 	val.it_interval.tv_usec = 0;
-	val.it_value.tv_sec  = 0;
+	val.it_value.tv_sec  = 5;
 	val.it_value.tv_usec = 50000;	/* 50 ms */
 	if (setitimer(ITIMER_REAL, &val, NULL) == -1)
 		err_sys("setitimer error");
