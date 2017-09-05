@@ -5,19 +5,26 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-#define GEN 0
-#define LIST 1
-#define END 2
+#define BUFSIZE 256
+
+typedef struct file_segment {
+	int len;
+	char buf[BUFSIZE];
+} file_segment;
 
 void error(char* msg) {
-	        perror(msg);
-		        exit(1);
+	perror(msg);
+	exit(1);
 }
 
 int main(int argc, char* argv[]) {
-	int sockfd;
+	int sockfd, filefd, len;
 	struct sockaddr_in servaddr;
+	char buf[BUFSIZE];
+
 
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		error("socket() error");
@@ -31,17 +38,12 @@ int main(int argc, char* argv[]) {
 		error("connect() error");
 
 	while(1) {
-		int send_msg, len;
-		char recv_msg[256];
-		printf("Command (0:GEN 1:LIST 2:END): ");
-		scanf("%d", &send_msg);
-		write(sockfd, &send_msg, sizeof(send_msg));
-		if(send_msg == END)
-			break;			
-		len = read(sockfd, recv_msg, sizeof(recv_msg));
-		recv_msg[len] = 0;
-		printf("%s\n", recv_msg);
+		scanf("%s", buf);
+		write(sockfd, buf, strlen(buf));
+		len = read(sockfd, buf, sizeof(buf));
+		printf("Echo from Server: %s\n", buf);
 	}
 	close(sockfd);
 	return 0;
 }
+

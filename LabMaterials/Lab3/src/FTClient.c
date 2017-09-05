@@ -25,22 +25,24 @@ int main(int argc, char* argv[]) {
 	struct sockaddr_in servaddr;
 	file_segment segment;
 
-	//socket()
+	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+		error("socket() error");
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = inet_addr(argv[1]);
 	servaddr.sin_port = htons(atoi(argv[2]));
 
-	//connect()
-
+	if(connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1)
+		error("connect() error");
+	
 	if((filefd = open(argv[4], O_CREAT|O_WRONLY, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)) == -1)
 		error("file open() error");
 	
-	//write file path(argv[3]) to server
+	write(sockfd, argv[3], strlen(argv[3]));
 
-	while(/*read segment from server*/)
-		//write data to file
+	while(len = read(sockfd, &segment, sizeof(segment)))
+		write(filefd, segment.buf, segment.len);
 
 	close(filefd);
 	close(sockfd);

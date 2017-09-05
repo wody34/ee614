@@ -27,20 +27,24 @@ int main(int argc, char* argv[]) {
 	char recv_msg[BUFSIZE];
 	file_segment segment;
 
-	//socket()
-	
+	if((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+		error("socket() error");
+
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(atoi(argv[1]));
 
-	//bind()
+	if(bind(listenfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) == -1)
+		error("bind() error");
 
-	//listen()
+	if(listen(listenfd, 5) == -1)
+		error("listen() error");
 
-	//accept()
+	if((connfd = accept(listenfd, (struct sockadder*)&cliaddr, &clilen)) == -1)
+		error("accept() error");
 
-	//read file path from client
+	len = read(connfd, recv_msg, sizeof(recv_msg));
 	recv_msg[len] = 0;
 	printf("%s\n", recv_msg);
 	if((filefd = open(recv_msg, O_RDONLY)) == -1) {
@@ -49,9 +53,9 @@ int main(int argc, char* argv[]) {
 		error("file open() error");
 	}
 
-	while(/*read data from file*/) {
+	while(len = read(filefd, segment.buf, sizeof(segment.buf))) {
 		segment.len = len;
-		//write segment to client
+		write(connfd, &segment, sizeof(segment));
 	}
 
 	close(filefd);
