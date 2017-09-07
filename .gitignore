@@ -1,2 +1,6 @@
 .idea/
-/LabSolutions/
+LabSolutions/
+.DS_Store
+LabMaterials/.DS_Store
+LabMaterials/unpv13e/.DS_Store
+unpv13e/
