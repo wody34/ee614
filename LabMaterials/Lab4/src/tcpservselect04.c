@@ -1,6 +1,7 @@
 /* include fig01 */
 #include	"unp.h"
 #include <sys/time.h>
+#define NOTDEF
 
 int
 main(int argc, char **argv)
@@ -51,9 +52,7 @@ main(int argc, char **argv)
 			clilen = sizeof(cliaddr);
 			connfd = Accept(listenfd, (SA *) &cliaddr, &clilen);
 #ifdef	NOTDEF
-			printf("new client: %s, port %d\n",
-					Inet_ntop(AF_INET, &cliaddr.sin_addr, 4, NULL),
-					ntohs(cliaddr.sin_port));
+			printf("new client\n");
 #endif
 
 			for (i = 0; i < FD_SETSIZE; i++)
