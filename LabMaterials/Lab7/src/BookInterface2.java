@@ -1,12 +1,10 @@
 package kr.ac.kaist;
 
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 
 @Path("/Book")
@@ -22,45 +20,65 @@ public class BookInterface {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getBookList() {
-        return toJSON();
+        System.out.println("GetBookList");
+        String json = toJSONBookList();
+        System.out.println(json);
+        return json;
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getBook(@PathParam("id") int id) {
+        System.out.println("GetBook: " + id);
+
+        for (Book book : this.bookList) {
+            if(book.getId() == id) {
+                String json = book.toJSON(true);
+                System.out.println(json);
+                return json;
+            }
+        }
+        return "No book: " + id;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public String addBook(String json) {
+        System.out.println("AddBook: " + json);
+        Book b = null;
         try {
-            bookList.add(new Book(json));
+            b = new Book(json);
+            bookList.add(b);
+            return "Book added - " + b;
         } catch(ParseException e) {
             e.printStackTrace();
+            return "Fail to add a Book";
         }
-        return "Book added";
     }
 
     @DELETE
-    @Path("/{name}")
-    public String deleteBook(@PathParam("name") String name) {
+    @Path("/{id}")
+    public String deleteBook(@PathParam("id") int id) {
+        System.out.println("DeleteBook: " + id);
         Book b = null;
         for (Book book : this.bookList) {
-            if(book.getName().equals(name))
+            if(book.getId() == id)
                 b = book;
         }
         if(b == null) {
-            return "No book named " + name;
+            return "No book: " + id;
         }
         else {
             bookList.remove(b);
-            return "Book is removed: " + name;
+            return "Book is removed - " + b;
         }
     }
 
-    public String toJSON() {
+    private String toJSONBookList() {
         JSONArray jsonArray = new JSONArray();
-
-        for (Book book : this.bookList) {
-            jsonArray.add(book.getJSONObject());
-        }
-
+        for (Book book : this.bookList)
+            jsonArray.add(book.toJSONObj(true));
         return jsonArray.toJSONString();
     }
 }
-

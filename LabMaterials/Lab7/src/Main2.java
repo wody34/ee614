@@ -11,49 +11,79 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 
 public class Main {
-    public void getBookList() {
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8080/Book");
+    private Client client;
+    private WebTarget target;
+    private WebTarget specificTarget;
+
+    public Main() {
+        this.client = ClientBuilder.newClient();
+        this.target = client.target("http://localhost:8080/Book");
+        this.specificTarget = client.target("http://localhost:8080/Book/{id}");
+    }
+
+    public ArrayList<Book> getBookList() {
         Response res = target.request(MediaType.APPLICATION_JSON).get();
         String entity = res.readEntity(String.class);
+        System.out.println("Get Book List from Server");
 
         JSONParser parser = new JSONParser();
         try {
+            ArrayList<Book> list = new ArrayList<>();
             JSONArray jsonArray = (JSONArray) parser.parse(entity);
             for (Object o: jsonArray) {
                 Book book = new Book((JSONObject)o);
-                System.out.print(String.format("Name: %s, Price: %d\n", book.getName(), book.getPrice()));
+                list.add(book);
+                System.out.println(" - " + book);
             }
+            return list;
         } catch (ParseException e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Book getBook(int id) {
+        Response res = completeSpecificTarget(id).request(MediaType.APPLICATION_JSON).get();
+        String entity = res.readEntity(String.class);
+
+        try {
+            Book book = new Book(entity);
+            System.out.print(book);
+            return book;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     public void addBook(Book b) {
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8080/Book");
-        Response res = target.request().post(Entity.entity(b.toJSON(), MediaType.APPLICATION_JSON_TYPE));
+        Response res = target.request().post(Entity.entity(b.toJSON(false), MediaType.APPLICATION_JSON_TYPE));
         String entity = res.readEntity(String.class);
         System.out.println(entity);
     }
 
-    public void deleteBook(String bookName) {
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target("http://localhost:8080/Book/" + bookName);
-        Response res = target.request().delete();
+    public void deleteBook(int id) {
+        Response res = completeSpecificTarget(id).request().delete();
         String entity = res.readEntity(String.class);
         System.out.println(entity);
+    }
+
+    private WebTarget completeSpecificTarget(int id) {
+        return specificTarget.resolveTemplate("id", id);
     }
 
     public static void main(String[] args) {
         Main client = new Main();
+        ArrayList<Book> list;
+        list = client.getBookList();
         client.addBook(new Book("ABC", 5));
-        client.getBookList();
-        client.deleteBook("Machine Learning");
-        client.deleteBook("Linux Programming Guide");
-        client.getBookList();
+        list = client.getBookList();
+        client.deleteBook(5);
+        client.deleteBook(list.get(1).getId());
+        list = client.getBookList();
     }
 }
 
