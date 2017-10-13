@@ -1,18 +1,35 @@
-var request = require('request');
-
-request.get('http://localhost:3000/book', function (error, response, body) {
-    console.log(body);
+var request = require('request').defaults({
+    baseUrl: 'http://localhost:3000'
 });
 
-request.get('http://localhost:3000/book/1', function (error, response, body) {
-    console.log(body);
-});
+function getBookList() {
+    request({method: 'GET', uri: '/book'}, function (error, response, body) {
+        console.log(body);
+        return body;
+    });
+}
 
-request.post('http://localhost:3000/book', {name: 'ABC', price: 3}, function (error, response, body) {
-    console.log(body);
-});
+function getBook(id) {
+    request({method: 'GET', uri: '/book/'+id}, function (error, response, body) {
+        console.log(body);
+        return body;
+    });
+}
 
-request.delete('http://localhost:3000/book/1', function (error, response, body) {
-    console.log(body);
-});
+function addBook(book) {
+    request({method: 'POST', uri: '/book', json: book}, function (error, response, body) {
+        console.log(body);
+    });
+}
 
+function deleteBook(id) {
+    request({method: 'DELETE', uri: '/book/'+id}, function (error, response, body) {
+        console.log(body);
+    });
+}
+
+var bookList = getBookList();
+var book = getBook(1);
+addBook({name: 'ABC', price: 3});
+deleteBook(1);
+bookList = getBookList();

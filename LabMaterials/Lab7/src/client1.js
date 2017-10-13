@@ -1,47 +1,54 @@
-var request = require('request');
+var request = require('request').defaults({
+    baseUrl: 'http://localhost:3000'
+});
 
-function getBookList(callback) {
-    request.get('http://localhost:3000/book', function (error, response, body) {
-        callback(body)
+function getBookList(cb) {
+    request({method: 'GET', uri: '/book'}, function (error, response, body) {
+        if(cb)
+            cb(body)
     });
 }
 
-function getBook(id, callback) {
-    request.get('http://localhost:3000/book/' + id, function (error, response, body) {
-        callback(body)
+function getBook(id, cb) {
+    request({method: 'GET', uri: '/book/'+id}, function (error, response, body) {
+        if(cb)
+            cb(body)
     });
 }
 
-function addBook(book, callback) {
-    request.post('http://localhost:3000/book', book, function (error, response, body) {
-        callback(body)
+function addBook(book, cb) {
+    request({method: 'POST', uri: '/book', json: book}, function (error, response, body) {
+        if(cb)
+            cb(body)
     });
 }
 
-function deleteBook(id, callback) {
-    request.delete('http://localhost:3000/book/1', function (error, response, body) {
-        callback(body)
+function deleteBook(id, cb) {
+    request({method: 'DELETE', uri: '/book/'+id}, function (error, response, body) {
+        if(cb)
+            cb(body)
     });
 }
 
 getBookList(function (bookList) {
    console.log(bookList);
-   //after end of getBookList Request
+   //After the getBookList Request is finished
 
    getBook(1, function (book) {
        console.log(book);
-       //after end of getBook Request
+       //After the getBook Request is finished
 
        addBook({name: 'ABC', price: 3}, function (msg) {
            console.log(msg);
-           //after end of addBook Request
+           //After the addBook Request is finished
 
-           deleteBook(2, function (msg) {
+           deleteBook(1, function (msg) {
                console.log(msg);
-               //after end of deleteBook Request
+               //After the deleteBook Request is finished
 
                getBookList(function (bookList) {
                    console.log(bookList);
+
                });
            });
        });
